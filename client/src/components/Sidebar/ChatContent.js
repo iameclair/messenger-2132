@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import Chip from "@material-ui/core/Chip";
+import Badge from "@material-ui/core/Badge";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,18 +51,10 @@ const ChatContent = (props) => {
             {latestMessageText}
           </Typography>
         </Box>
-        { countOfUnreadMessages > 0 ?
+        { countOfUnreadMessages > 0 && (
           <Box className={classes.count}>
-            <Chip label={countOfUnreadMessages}
-                  style={
-                    {
-                      color: "#FFFFFF",
-                      fontWeight: "bold",
-                      backgroundImage: "linear-gradient(225deg, #6CC1FF 0%, #3A8DFF 100%)"
-                    }
-                  }
-            />
-          </Box> : <Box/>
+            <Badge badgeContent={countOfUnreadMessages} color="primary"/>
+          </Box>)
         }
       </Box>
     </Box>

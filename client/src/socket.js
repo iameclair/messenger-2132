@@ -22,7 +22,7 @@ socket.on("connect", () => {
   socket.on("new-message", (data) => {
     //if active conversation is currently set to the sender username
     // we assume that the receiver has read the message
-    const { activeConversation, conversations } = store.getState();
+    const { activeConversation, conversations, user } = store.getState();
     const { message } = data;
     for (let convo of conversations) {
       if (convo.id === message.conversationId) {
@@ -37,7 +37,7 @@ socket.on("connect", () => {
         }
       }
     }
-    store.dispatch(setNewMessage(message, data.sender));
+    store.dispatch(setNewMessage(message, data.sender, user.id));
   });
 
   socket.on("notify-message-read", (data) => {
