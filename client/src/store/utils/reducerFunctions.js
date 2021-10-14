@@ -9,9 +9,7 @@ export const addMessageToStore = (state, payload) => {
     };
     newConvo.latestMessageText = message.text;
     if (newConvo.countOfUnreadMessages) {
-      const currCount = newConvo.countOfUnreadMessages;
-      const value = message.read ? 1 : 0;
-      newConvo.countOfUnreadMessages = currCount + value;
+      if (message.read) newConvo.countOfUnreadMessages++;
     } else {
       newConvo.countOfUnreadMessages = message.read? 0 : 1;
     }
