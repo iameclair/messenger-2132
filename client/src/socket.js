@@ -5,6 +5,7 @@ import {
   removeOfflineUser,
   addOnlineUser,
 } from "./store/conversations";
+import {fetchConversations} from "./store/utils/thunkCreators";
 
 const socket = io(window.location.origin);
 
@@ -19,8 +20,31 @@ socket.on("connect", () => {
     store.dispatch(removeOfflineUser(id));
   });
   socket.on("new-message", (data) => {
-    store.dispatch(setNewMessage(data.message, data.sender));
+    //if active conversation is currently set to the sender username
+    // we assume that the receiver has read the message
+    const { activeConversation, conversations } = store.getState();
+    const { message } = data;
+    for (let convo of conversations) {
+      if (convo.id === message.conversationId) {
+        const { otherUser } = convo;
+        if (otherUser.username === activeConversation) {
+          message.read = true;
+          //send notification to sever to update the message read status
+          socket.emit("message-read", {
+            conversationId: convo.id,
+            senderId: convo.otherUser.id
+          })
+        }
+      }
+    }
+    store.dispatch(setNewMessage(message, data.sender));
   });
+
+  socket.on("notify-message-read", (data) => {
+    if (store.getState().user.id === data.userId) {
+      store.dispatch(fetchConversations())
+    }
+  })
 });
 
 export default socket;

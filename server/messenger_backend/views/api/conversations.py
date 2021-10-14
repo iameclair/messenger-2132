@@ -8,6 +8,14 @@ from rest_framework.views import APIView
 from rest_framework.request import Request
 
 
+def get_unread_messages_count(messages):
+    count = 0
+    for message in messages:
+        if not message["read"]:
+            count = count + 1
+    return count
+
+
 class Conversations(APIView):
     """get all conversations for a user, include latest message text for preview, and all messages
     include other user model so we have info on username/profile pic (don't include current user info)
@@ -37,13 +45,14 @@ class Conversations(APIView):
                 convo_dict = {
                     "id": convo.id,
                     "messages": [
-                        message.to_dict(["id", "text", "senderId", "createdAt"])
+                        message.to_dict(["id", "text", "senderId", "read", "createdAt"])
                         for message in convo.messages.all()
                     ],
                 }
 
                 # set properties for notification count and latest message preview
                 convo_dict["latestMessageText"] = convo_dict["messages"][-1]["text"]
+                convo_dict["countOfUnreadMessages"] = get_unread_messages_count(convo_dict["messages"])
 
                 # set a property "otherUser" so that frontend will have easier access
                 user_fields = ["id", "username", "photoUrl"]

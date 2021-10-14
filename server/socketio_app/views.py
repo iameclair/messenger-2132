@@ -1,3 +1,5 @@
+from messenger_backend.models import Message
+
 async_mode = None
 
 import os
@@ -28,6 +30,20 @@ def new_message(sid, message):
         "new-message",
         {"message": message["message"], "sender": message["sender"]},
         skip_sid=sid,
+    )
+
+
+@sio.on("message-read")
+def message_read(sid, payload):
+    messages = Message.objects.filter(conversation_id=payload["conversationId"])
+    for message in messages:
+        message.read = True
+        message.save()
+    # notify the sender that the message has been read
+    sio.emit(
+        "notify-message-read",
+        {"userId": payload["senderId"]},
+        skip_sid=sid
     )
 
 
