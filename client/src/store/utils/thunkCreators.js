@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  resetUnreadMessageCount,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -96,10 +97,28 @@ export const postMessage = (body) => async (dispatch) => {
     } else {
       dispatch(setNewMessage(data.message));
     }
+    sendMessage(data, body);
   } catch(error){
         console.error(error);
   }
 };
+
+//update message set read status to true
+export const updateMessage = (req) => async (dispatch) => {
+  try {
+    if (req.conversationId) {
+      //reset the count
+      dispatch(resetUnreadMessageCount(req.conversationId));
+      //send notification to sever to update the message read status
+      socket.emit("message-read", {
+        conversationId: req.conversationId,
+        senderId: req.senderId
+      })
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
